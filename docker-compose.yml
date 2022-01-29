@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+#  project-tracking-system-container:
+#
+#    build: .
+#    ports:
+#      - 8080:8080
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=dev
+#    restart: on-failure
+#    depends_on:
+#      - elasticsearch
+#      - mongo
+#    networks:
+#      - my-cqrs-network
+    
+  mongo:
+    image: mongo
+    restart: on-failure
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: user
+      MONGO_DB_USERNAME: root
+      MONGO_DB_PASSWORD: example
+    networks:
+      - my-cqrs-network
+
+  elasticsearch:
+    image: elasticsearch:7.16.3
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - my-cqrs-network  
+
+volumes:
+  elasticsearch-data:
+    driver: local
+
+networks:
+  my-cqrs-network:
+     
